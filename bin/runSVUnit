@@ -50,6 +50,10 @@ my @simargs;
 my @compileargs;
 my @elabargs;
 my $outdir = ".";
+my $workdir;
+my $mode = "batch";
+my $uvm_verb;
+my $cover;
 my $clean;
 my $vhdlfile;
 my @tests;
@@ -70,6 +74,10 @@ sub usage () {
   print "  -e|--e_arg <option>      : specify additional elaboration options\n";
   print "  -U|--uvm                 : run SVUnit with UVM\n";
   print "  -o|--out                 : output directory for tmp and simulation files\n";
+  print "     --workdir <dir>       : alias for -o|--out\n";
+  print "     --uvm_verb <option>   : pass +UVM_VERBOSITY=<option> to the simulation\n";
+  print "     --mode <batch|gui>    : modelsim/riviera mode (default: batch)\n";
+  print "     --cover               : enable coverage collection (modelsim/riviera, batch mode)\n";
   print "  -t|--test                : specifies a unit test to run (multiple can be given)\n";
   print "  -m|--mixedsim <vhdlfile> : consolidated file list with VHDL files and command line switches\n";
   print "  -w|--wavedrom            : process json files as wavedrom output\n";
@@ -107,6 +115,10 @@ GetOptions("l|log=s" => \$logfile,
            "c|c_arg=s" => \@compileargs,
            "e|e_arg=s" => \@elabargs,
            "o|out=s" => \$outdir,
+           "workdir=s" => \$workdir,
+           "uvm_verb=s" => \$uvm_verb,
+           "mode=s" => \$mode,
+           "cov|cover" => \$cover,
            "m|mixedsim=s" => \$vhdlfile,
            "t|test=s{,}" => \@tests,
            "filter=s" => \$filter,
@@ -116,6 +128,12 @@ GetOptions("l|log=s" => \$logfile,
            "list-tests" => \$list_tests,
            "h|help" => \$help
            ) or usage();
+
+# --workdir is an alias for -o|--out; if both are given, --workdir wins.
+$outdir = $workdir if defined $workdir;
+
+# --uvm_verb is forwarded as a +UVM_VERBOSITY plusarg to whichever simulator runs.
+push @simargs, "+UVM_VERBOSITY=$uvm_verb" if defined $uvm_verb;
 
 usage() if $help;
 
@@ -133,6 +151,11 @@ if ($simulator eq "verilator" && defined $uvm) {
 
 if ($simulator eq "verilator" && defined $vhdlfile) {
     print("Argument error: cannot run Verilator with VHDL\n");
+    exit CMDLINE_USAGE_ERROR
+}
+
+if ($mode ne "batch" && $mode ne "gui") {
+    print("Argument error: --mode must be 'batch' or 'gui' (got '$mode')\n");
     exit CMDLINE_USAGE_ERROR
 }
 
@@ -159,6 +182,12 @@ $simulator =~ tr/A-Z/a-z/;
 $simulator =~ s/questa/modelsim/;
 $simulator =~ s/ius/irun/;
 $simulator =~ s/xcelium/xrun/;
+
+if (($mode eq "gui" || defined $cover)
+    && $simulator ne "modelsim" && $simulator ne "riviera") {
+    print("Argument error: --mode=gui and --cover are only supported with modelsim/riviera\n");
+    exit CMDLINE_USAGE_ERROR
+}
 
 if (not grep { $_ eq $simulator } qw(xrun irun modelsim riviera vcs dsim qrun verilator xsim)) {
   if ($user_specified_simulator ne "") {
@@ -217,11 +246,22 @@ else {
 }
 
 if ($simulator eq "modelsim" or $simulator eq "riviera") {
-  if (!grep(/(^| )(-gui|-c|-i)( |$)/, @simargs)) {
+  if ($mode eq "gui") {
+    push @simargs, "-gui" unless grep(/(^| )(-gui|-c|-i)( |$)/, @simargs);
+  } elsif (!grep(/(^| )(-gui|-c|-i)( |$)/, @simargs)) {
     push @simargs, "-c";
   }
   my $vopt_elabargs = @elabargs ? qq!-voptargs="@elabargs"! : "";
-  $cmd .= qq! @compileargs && vsim $vopt_elabargs @simargs -lib work -do "run -all; quit" -l $logfile testrunner!;
+  my $cover_args = $cover ? " -coverage" : "";
+  my $cover_save = "";
+  if ($cover) {
+    foreach my $ut (@tests) {
+      my $ut_name = ($ut =~ /^(.*)\.sv$/) ? $1 : $ut;
+      $cover_save .= "coverage save -onexit $outdir/${ut_name}.ucdb; ";
+    }
+  }
+  my $do_cmd = $cover_save ? qq!"$cover_save run -all; quit"! : qq!"run -all; quit"!;
+  $cmd .= qq! @compileargs && vsim $vopt_elabargs$cover_args @simargs -lib work -do $do_cmd -l $logfile testrunner!;
 } elsif ($simulator eq "verilator") {
   my $verilator_simargs = "";
   $verilator_simargs .= " @simargs";
