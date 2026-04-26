@@ -56,16 +56,14 @@ jobs:
       - name: Add Verilator to $PATH
         run: echo "/opt/verilator/bin" >> $GITHUB_PATH
 
-      - name: Set up Python
-        uses: actions/setup-python@v2
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
         with:
-          python-version: "3.8"
-
-      - name: Install direnv
-        run: sudo apt-get install -y direnv
+          enable-cache: true
 
       - name: Run tests
         run: |
+          source Setup.bsh
           cd test
-          direnv allow
-          direnv exec . pytest -n auto
+          uv sync --frozen
+          uv run pytest -n auto
