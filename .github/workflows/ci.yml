@@ -6,7 +6,7 @@ env:
   VERILATOR_VERSION: v5.024
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-22.04
     permissions:
       contents: read
