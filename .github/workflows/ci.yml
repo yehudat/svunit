@@ -13,7 +13,7 @@ jobs:
 
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Install g++ 10
         run: sudo apt-get install -y g++-10
@@ -22,7 +22,7 @@ jobs:
       - name: Install Verilator dependencies
         run: |
             sudo apt-get install -y \
-                git help2man perl python3 make \
+                git help2man perl make \
                 libfl2 \
                 libfl-dev \
                 zlib1g zlib1g-dev \
@@ -30,7 +30,7 @@ jobs:
 
       - name: Cache Verilator
         id: cache-verilator
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: /opt/verilator
           key: verilator-${{ env.VERILATOR_VERSION }}-${{ runner.os }}
