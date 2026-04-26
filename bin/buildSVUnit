@@ -41,6 +41,7 @@ my $uvm;
 my $wavedrom;
 my @directory;
 my $enable_experimental;
+my $verbosity = 0;
 my $help;
 
 
@@ -58,6 +59,7 @@ sub usage() {
   print "  -w|--wavedrom            : process json files as wavedrom output\n";
   print "     --directory           : only build svunit on selected directories\n";
   print "     --enable-experimental : enable experimental features\n";
+  print "  -v|--verbosity           : prints extra progress information\n";
   print "  -h|--help                : prints this help screen\n";
   print "\n";
   exit 1;
@@ -69,6 +71,7 @@ sub getFilelists
   find({
       wanted => sub {
                       if (/\/svunit.f$/) {
+                        print "NOTE: Added to .svunit.f: $_\n" if $verbosity;
                         $FILELIST->print("-f $cwd/$_\n");
                       }
                     },
@@ -84,6 +87,7 @@ sub getFilelists
 #############################################
 sub buildTestrunner
 {
+  print "NOTE: Running buildTestrunner ...\n" if $verbosity;
   my $cmd = "cd $outdir; create_testrunner.pl -overwrite -out testrunner.sv";
   my $testsuites;
 
@@ -140,6 +144,7 @@ sub buildTestsuite
       $FILELIST->print("$cwd/$_\n");
       $cmd .= " -add $_";
     }
+    print "NOTE: Running $cmd ...\n" if $verbosity;
     system($cmd);
     $FILELIST->print("+incdir+$cwd/$dir\n");
   }
@@ -184,6 +189,7 @@ GetOptions("o|out=s" => \$outdir,
            "w|wavedrom" => \$wavedrom,
            "directory=s" => \@directory,
            "enable-experimental" => \$enable_experimental,
+           "v|verbosity" => \$verbosity,
            "h|help" => \$help
            ) or usage();
 
