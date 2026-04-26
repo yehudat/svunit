@@ -165,7 +165,7 @@ def expect_file_does_contain(pattern, file_path):
 
 
 def expect_passing_example(dir, sim, args=[]):
-    with dir.as_cwd():
+    with working_directory(dir):
         subprocess.check_call(['runSVUnit', '-s', sim] + args)
 
         expect_file('run.log')

@@ -8,7 +8,7 @@ from utils import *
 @all_files_in_dir('sim_0')
 @all_available_simulators()
 def test_sim_0(datafiles, simulator):
-    with datafiles.as_cwd():
+    with working_directory(datafiles):
         subprocess.check_call(['create_unit_test.pl', '-overwrite', '-out', '-dut_unit_test.sv', 'dut.sv'])
 
         subprocess.check_call(['runSVUnit', '-s', simulator])
@@ -18,7 +18,7 @@ def test_sim_0(datafiles, simulator):
 @all_files_in_dir('sim_1')
 @all_available_simulators()
 def test_sim_1(datafiles, simulator):
-    with datafiles.as_cwd():
+    with working_directory(datafiles):
         subprocess.check_call(['create_unit_test.pl', '-overwrite', '-out', '-dut_unit_test.sv', 'dut.sv'])
 
         subprocess.check_call(['runSVUnit', '-s', simulator])
@@ -28,7 +28,7 @@ def test_sim_1(datafiles, simulator):
 @all_files_in_dir('sim_2')
 @all_available_simulators()
 def test_sim_2(datafiles, simulator):
-    with datafiles.as_cwd():
+    with working_directory(datafiles):
         subprocess.check_call(['create_unit_test.pl', '-overwrite', '-out', '-dut_unit_test.sv', 'dut.sv'])
 
         subprocess.check_call(['runSVUnit', '-s', simulator])
@@ -38,7 +38,7 @@ def test_sim_2(datafiles, simulator):
 @all_files_in_dir('sim_3')
 @all_available_simulators()
 def test_sim_3(datafiles, simulator):
-    with datafiles.as_cwd():
+    with working_directory(datafiles):
         subprocess.check_call(['runSVUnit', '-s', simulator])
 
         expect_string(br'INFO:  \[0\]\[dut_ut\]: RUNNING', 'run.log')
@@ -81,7 +81,7 @@ def test_sim_3(datafiles, simulator):
 @all_files_in_dir('sim_4')
 @all_available_simulators()
 def test_sim_4(datafiles, simulator):
-    with datafiles.as_cwd():
+    with working_directory(datafiles):
         subprocess.check_call(['runSVUnit', '--sim', simulator, '--log', 'other.log', '--define', 'DIDLEY_SQUAT', '-d', 'FIDDLE_FADDLE="junk"'])
 
         expect_file('other.log')
@@ -93,7 +93,7 @@ def test_sim_4(datafiles, simulator):
 @all_files_in_dir('sim_5')
 @all_available_simulators()
 def test_sim_5(datafiles, simulator):
-    with datafiles.as_cwd():
+    with working_directory(datafiles):
         if simulator != 'xsim':
             subprocess.check_call(['runSVUnit', '-s', simulator, '-r', '+JOKES +DUD=4', '--r_arg', '+BOZO'])
         else:
@@ -105,7 +105,7 @@ def test_sim_5(datafiles, simulator):
 @all_files_in_dir('sim_6')
 @all_available_simulators()
 def test_sim_6(datafiles, simulator):
-    with datafiles.as_cwd():
+    with working_directory(datafiles):
         if simulator != 'xsim':
             subprocess.check_call(['runSVUnit', '-s', simulator, '-c', '+define+JOKES +define+DUD=4', '--c_arg', '+define+BOZO'])
         else:
@@ -117,7 +117,7 @@ def test_sim_6(datafiles, simulator):
 @all_files_in_dir('sim_7')
 @all_available_simulators()
 def test_sim_7(datafiles, simulator):
-    with datafiles.as_cwd():
+    with working_directory(datafiles):
         subprocess.check_call(['runSVUnit', '-s', simulator, '-o', 'rundir'])
 
         expect_testrunner_pass('rundir/run.log')
@@ -126,7 +126,7 @@ def test_sim_7(datafiles, simulator):
 @all_files_in_dir('sim_8')
 @all_available_simulators()
 def test_sim_8(datafiles, simulator):
-    with datafiles.as_cwd():
+    with working_directory(datafiles):
         subprocess.check_call(['create_unit_test.pl', '-overwrite', '-out', 'dut_unit_test.sv', 'dut.sv'])
 
         subprocess.check_call(['runSVUnit', '-s', simulator, '-f', 'my_filelist.f', '--filelist', 'a_filelist.f'])
@@ -137,7 +137,7 @@ def test_sim_8(datafiles, simulator):
 @all_files_in_dir('sim_9')
 @all_available_simulators()
 def test_sim_9(datafiles, simulator):
-    with datafiles.as_cwd():
+    with working_directory(datafiles):
         subprocess.check_call(['runSVUnit', '-s', simulator, '-f', os.path.abspath( 'my_filelist.f'), '--filelist', os.path.abspath('a_filelist.f'), '-o', '.'])
 
         expect_testrunner_pass('./run.log')
@@ -146,7 +146,7 @@ def test_sim_9(datafiles, simulator):
 @all_files_in_dir('sim_10')
 @all_available_simulators()
 def test_sim_10(datafiles, simulator):
-    with datafiles.as_cwd():
+    with working_directory(datafiles):
         subprocess.check_call(['runSVUnit', '-s', simulator])
 
         expect_string(br'INFO:  \[0\]\[dut_ut\]: Use the INFO macro', 'run.log')
@@ -162,7 +162,7 @@ def test_sim_10(datafiles, simulator):
 @all_files_in_dir('sim_11')
 @all_available_simulators()
 def test_sim_11(datafiles, simulator):
-    with datafiles.as_cwd():
+    with working_directory(datafiles):
         subprocess.check_call(['runSVUnit', '-s', simulator])
 
         expect_string(br'ERROR: \[0\]\[dut_ut\]: fail_unless_str_equal: \"abd\" != \"abcd\"', 'run.log')
@@ -173,7 +173,7 @@ def test_sim_11(datafiles, simulator):
 @all_files_in_dir('sim_12')
 @all_available_simulators()
 def test_sim_12(datafiles, simulator):
-    with datafiles.as_cwd():
+    with working_directory(datafiles):
         # TODO Skipping this test for 'dsim' and 'verilator' gives the impression that we have to do something to
         # make it work. We should remove these from the list of simulators we test with VHDL.
         if simulator in ['dsim', 'verilator']:
@@ -194,7 +194,7 @@ def test_sim_12(datafiles, simulator):
 def test_sim_13(datafiles, simulator):
     if simulator == 'xsim':
         pytest.skip(f"'Timeout set in `svunit.f` by `+define+` incompatible with `xvlog`")
-    with datafiles.as_cwd():
+    with working_directory(datafiles):
         subprocess.check_call(['runSVUnit', '-s', simulator])
 
         expect_string(br"ERROR: \[50\]\[dut_ut\]: fail_if: svunit_timeout \(at .*/dut_unit_test.sv line:60\)", 'run.log')
@@ -204,7 +204,7 @@ def test_sim_13(datafiles, simulator):
 @all_files_in_dir('fail_macros')
 @all_available_simulators()
 def test_fail_macros(datafiles, simulator):
-    with datafiles.as_cwd():
+    with working_directory(datafiles):
         subprocess.check_call(['runSVUnit', '-s', simulator])
 
         assert not contains_pattern(br"went into 'else' block", 'run.log')

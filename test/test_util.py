@@ -10,6 +10,6 @@ def test_util_clk_reset(datafiles, simulator):
         pytest.skip("Verilator issues a lot of lint warnings for this code")
     if simulator == 'xsim':
         pytest.skip(f"'Include directory added in `svunit.f` by `+incdir+` incompatible with `xvlog`")
-    with datafiles.as_cwd():
+    with working_directory(datafiles):
         subprocess.check_call(['runSVUnit', '-s', simulator])
         expect_testrunner_pass('run.log')
