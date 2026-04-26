@@ -32,7 +32,7 @@ def fake_tool(name, log_name_is_tool_name=False):
 
 @all_files_in_dir('frmwrk_0')
 def test_frmwrk_0(datafiles):
-    with datafiles.as_cwd():
+    with working_directory(datafiles):
         create_unit_test('test.sv')
         subprocess.check_call(['buildSVUnit'])
 
@@ -47,7 +47,7 @@ def test_frmwrk_0(datafiles):
 
 @all_files_in_dir('frmwrk_1')
 def test_frmwrk_1(datafiles):
-    with datafiles.as_cwd():
+    with working_directory(datafiles):
         create_unit_test('test.sv')
 
         golden_class_unit_test('test', 'test0')
@@ -57,7 +57,7 @@ def test_frmwrk_1(datafiles):
 
 @all_files_in_dir('frmwrk_2')
 def test_frmwrk_2(datafiles):
-    with datafiles.as_cwd():
+    with working_directory(datafiles):
         create_unit_test('test.sv')
 
         golden_class_unit_test('test', 'virtual_test')
@@ -67,7 +67,7 @@ def test_frmwrk_2(datafiles):
 
 @all_files_in_dir('frmwrk_3')
 def test_frmwrk_3(datafiles):
-    with datafiles.as_cwd():
+    with working_directory(datafiles):
         create_unit_test('test.sv')
         subprocess.check_call(['buildSVUnit'])
 
@@ -77,9 +77,9 @@ def test_frmwrk_3(datafiles):
 
 @all_files_in_dir('frmwrk_4')
 def test_frmwrk_4(datafiles):
-    with datafiles.as_cwd():
+    with working_directory(datafiles):
         create_unit_test('test.sv')
-        with (datafiles / 'another_test').as_cwd():
+        with working_directory(datafiles / 'another_test'):
             create_unit_test('test0.sv')
         subprocess.check_call(['buildSVUnit'])
 
@@ -90,7 +90,7 @@ def test_frmwrk_4(datafiles):
 
 @all_files_in_dir('frmwrk_6')
 def test_frmwrk_6(datafiles):
-    with datafiles.as_cwd():
+    with working_directory(datafiles):
         subprocess.check_call(['create_unit_test.pl', '-overwrite', '-out', './test_unit_test.sv', 'test.sv'])
         subprocess.check_call(['create_unit_test.pl', '-overwrite', '-out', './subdir0/subdir0_unit_test.sv', './subdir0/subdir0.sv'])
         subprocess.check_call(['create_unit_test.pl', '-overwrite', '-out', './subdir1/subdir1_unit_test.sv', './subdir1/subdir1.sv'])
@@ -114,7 +114,7 @@ def test_frmwrk_7(tmpdir):
 
 @all_files_in_dir('frmwrk_8')
 def test_frmwrk_8(datafiles):
-    with datafiles.as_cwd():
+    with working_directory(datafiles):
         subprocess.check_call(['create_unit_test.pl', '-overwrite', '-out', './subdir0/subdir0_unit_test.sv', './subdir0/subdir0.sv'])
         subprocess.check_call(['create_unit_test.pl', '-overwrite', '-out', './subdir1/subdir1_unit_test.sv', './subdir1/subdir1.sv'])
         subprocess.check_call(['create_unit_test.pl', '-overwrite', '-out', './subdir1/subdir1a/subdir1a_unit_test.sv', './subdir1/subdir1a/subdir1a.sv'])
@@ -128,7 +128,7 @@ def test_frmwrk_8(datafiles):
 
 @all_files_in_dir('frmwrk_9')
 def test_frmwrk_9(datafiles):
-    with datafiles.as_cwd():
+    with working_directory(datafiles):
         subprocess.check_call(['create_unit_test.pl', '-overwrite', '-out', './test_unit_test.sv', 'test.sv'])
         subprocess.check_call(['create_unit_test.pl', '-overwrite', '-out', './subdir1/subdir1a/subdir1a_unit_test.sv', './subdir1/subdir1a/subdir1a.sv'])
 
@@ -141,7 +141,7 @@ def test_frmwrk_9(datafiles):
 
 @all_files_in_dir('frmwrk_10')
 def test_frmwrk_10(datafiles):
-    with datafiles.as_cwd():
+    with working_directory(datafiles):
         subprocess.check_call(['create_unit_test.pl', 'test.sv'])
 
         golden_module_unit_test('test', 'test')
@@ -151,7 +151,7 @@ def test_frmwrk_10(datafiles):
 
 @all_files_in_dir('frmwrk_11')
 def test_frmwrk_11(datafiles):
-    with datafiles.as_cwd():
+    with working_directory(datafiles):
         subprocess.check_call(['create_unit_test.pl', '-overwrite', 'test_if.sv'])
 
         golden_if_unit_test('test_if', 'test_if')
@@ -161,7 +161,7 @@ def test_frmwrk_11(datafiles):
 
 @all_files_in_dir('frmwrk_12')
 def test_frmwrk_12(datafiles):
-    with datafiles.as_cwd():
+    with working_directory(datafiles):
         for file in datafiles.listdir():
             subprocess.check_call(['create_unit_test.pl', file])
             assert pathlib.Path(file.purebasename + '_unit_test.sv').is_file()
@@ -169,14 +169,14 @@ def test_frmwrk_12(datafiles):
 
 @all_files_in_dir('frmwrk_13')
 def test_frmwrk_13(datafiles):
-    with datafiles.as_cwd():
+    with working_directory(datafiles):
         for file in (datafiles / 'second_dir').listdir():
             if not file.check(file=1):
                 continue
             subprocess.check_call(['create_unit_test.pl', file])
             assert pathlib.Path(file.purebasename + '_unit_test.sv').is_file()
 
-    with (datafiles / 'second_dir').as_cwd():
+    with working_directory(datafiles / 'second_dir'):
         for file in datafiles.listdir():
             if not file.check(file=1):
                 continue
@@ -195,14 +195,14 @@ def test_frmwrk_14(datafiles, simulator):
     new_env['PATH'] = ':'.join(new_path_entries)
     new_env['SVUNIT_ROOT'] = get_svunit_root()
 
-    with datafiles.as_cwd():
+    with working_directory(datafiles):
         subprocess.check_call(['csh', 'run.csh', simulator], env=new_env)
         subprocess.check_call(['tcsh', 'run.csh', simulator], env=new_env)
 
 
 @all_files_in_dir('frmwrk_15')
 def test_frmwrk_15(datafiles):
-    with datafiles.as_cwd():
+    with working_directory(datafiles):
         os.mkdir('third_dir')
         for file in (datafiles / 'second_dir').listdir():
             if not file.check(file=1):
@@ -211,7 +211,7 @@ def test_frmwrk_15(datafiles):
             subprocess.check_call(['create_unit_test.pl', file, '-out', destfile])
             assert pathlib.Path(destfile).is_file()
 
-    with (datafiles / 'second_dir').as_cwd():
+    with working_directory(datafiles / 'second_dir'):
         for file in (datafiles / 'second_dir').listdir():
             if not file.check(file=1):
                 continue
@@ -219,7 +219,7 @@ def test_frmwrk_15(datafiles):
             subprocess.check_call(['create_unit_test.pl', file, '-out', destfile])
             assert pathlib.Path(destfile).is_file()
 
-    with datafiles.as_cwd():
+    with working_directory(datafiles):
         subprocess.check_call(['create_unit_test.pl', '-out', 'dud_unit_test.v', 'test2.sv'])
         assert not pathlib.Path('dud_unit_test.v').is_file()
 
@@ -229,7 +229,7 @@ def test_frmwrk_15(datafiles):
 
 @all_files_in_dir('frmwrk_16')
 def test_frmwrk_16(datafiles):
-    with datafiles.as_cwd():
+    with working_directory(datafiles):
         subprocess.check_call(['create_unit_test.pl', 'test_if.sv'])
         subprocess.check_call(['create_unit_test.pl', 'test_if2.sv'])
 
@@ -269,7 +269,7 @@ def test_frmwrk_19(tmpdir):
 
 @all_files_in_dir('frmwrk_20')
 def test_frmwrk_20(datafiles):
-    with datafiles.as_cwd():
+    with working_directory(datafiles):
         subprocess.check_call(['create_unit_test.pl', 'test_automatic.sv'])
         subprocess.check_call(['create_unit_test.pl', 'test_static.sv'])
 
@@ -283,7 +283,7 @@ def test_frmwrk_20(datafiles):
 @pytest.mark.skip(reason="create_svunit.pl doesn't exist. The original test still passes, though.")
 @all_files_in_dir('frmwrk_22')
 def test_frmwrk_22(datafiles):
-    with datafiles.as_cwd():
+    with working_directory(datafiles):
         subprocess.check_call(['create_svunit.pl'])
 
         subprocess.check_call(['make', '.testrunner.sv'])
@@ -297,7 +297,7 @@ def test_frmwrk_22(datafiles):
 
 @all_files_in_dir('frmwrk_23')
 def test_frmwrk_23(datafiles):
-    with datafiles.as_cwd():
+    with working_directory(datafiles):
         subprocess.check_call(['create_unit_test.pl', '-overwrite', '-out', './test_unit_test.sv', 'test.sv'])
         subprocess.check_call(['create_unit_test.pl', '-overwrite', '-out', './subdir0/subdir0_unit_test.sv', './subdir0/subdir0.sv'])
         subprocess.check_call(['create_unit_test.pl', '-overwrite', '-out', './subdir1/subdir1_unit_test.sv', './subdir1/subdir1.sv'])
@@ -312,7 +312,7 @@ def test_frmwrk_23(datafiles):
 
 @all_files_in_dir('frmwrk_24')
 def test_frmwrk_24(datafiles):
-    with datafiles.as_cwd():
+    with working_directory(datafiles):
         subprocess.check_call(['buildSVUnit', '-t', 'test_unit_test.sv'])
 
         golden_testsuite_with_1_unittest('test')
@@ -324,7 +324,7 @@ def test_frmwrk_24(datafiles):
 
 @all_files_in_dir('frmwrk_25')
 def test_frmwrk_25(datafiles):
-    with datafiles.as_cwd():
+    with working_directory(datafiles):
         subprocess.check_call(['buildSVUnit', '-t', 'test_unit_test.sv', '-t', 'test2_unit_test.sv'])
 
         golden_testsuite_with_2_unittests('test', 'test2')
@@ -336,7 +336,7 @@ def test_frmwrk_25(datafiles):
 
 @all_files_in_dir('frmwrk_26')
 def test_frmwrk_26(datafiles):
-    with datafiles.as_cwd():
+    with working_directory(datafiles):
         subprocess.check_call(['buildSVUnit', '-t', 'test_unit_test.sv'])
 
         golden_testsuite_with_1_unittest('test')
@@ -348,7 +348,7 @@ def test_frmwrk_26(datafiles):
 
 @all_files_in_dir('frmwrk_27')
 def test_frmwrk_27(datafiles):
-    with datafiles.as_cwd():
+    with working_directory(datafiles):
         subprocess.check_call(['buildSVUnit', '-t', 'subdir/test3_unit_test.sv'])
 
         golden_testsuite_with_1_unittest('test3')
@@ -361,7 +361,7 @@ def test_frmwrk_27(datafiles):
 @all_files_in_dir('frmwrk_28')
 def test_frmwrk_28(datafiles, monkeypatch):
     '''Test that the 'runSVUnit' script passes a '-t' argument to 'buildSVUnit.'''
-    with datafiles.as_cwd():
+    with working_directory(datafiles):
         fake_tool('xrun')
         monkeypatch.setenv('PATH', '.', prepend=os.pathsep)
 
@@ -377,7 +377,7 @@ def test_frmwrk_28(datafiles, monkeypatch):
 @all_files_in_dir('frmwrk_29')
 def test_frmwrk_29(datafiles, monkeypatch):
     '''Test that the 'runSVUnit' script passes all '-t' arguments to 'buildSVUnit.'''
-    with datafiles.as_cwd():
+    with working_directory(datafiles):
         fake_tool('xrun')
         monkeypatch.setenv('PATH', '.', prepend=os.pathsep)
 
@@ -392,7 +392,7 @@ def test_frmwrk_29(datafiles, monkeypatch):
 
 @all_files_in_dir('frmwrk_30')
 def test_frmwrk_30(datafiles):
-    with datafiles.as_cwd():
+    with working_directory(datafiles):
         subprocess.check_call(['create_unit_test.pl', '-p', 'a_pkg::*', 'test.sv'])
 
         golden_class_unit_test('test', 'test')
@@ -406,7 +406,7 @@ def test_frmwrk_30(datafiles):
 @all_files_in_dir('frmwrk_31')
 def test_frmwrk_31(datafiles, monkeypatch):
     '''Test that the 'runSVUnit' script passes all '-t' arguments to 'buildSVUnit.'''
-    with datafiles.as_cwd():
+    with working_directory(datafiles):
         fake_tool('xrun')
         monkeypatch.setenv('PATH', '.', prepend=os.pathsep)
 

@@ -10,7 +10,7 @@ from utils import *
 @all_files_in_dir('junit-xml/single-test-suite')
 @all_available_simulators()
 def test_writes_junit_xml(datafiles, simulator):
-    with datafiles.as_cwd():
+    with working_directory(datafiles):
         subprocess.check_call(['runSVUnit', '-s', simulator])
         assert pathlib.Path('tests.xml').exists()
         tree = ET.parse('tests.xml')
@@ -21,7 +21,7 @@ def test_writes_junit_xml(datafiles, simulator):
 @all_files_in_dir('junit-xml/single-test-suite')
 @all_available_simulators()
 def test_single_test_suite(datafiles, simulator):
-    with datafiles.as_cwd():
+    with working_directory(datafiles):
         subprocess.check_call(['runSVUnit', '-s', simulator])
         root = ET.parse('tests.xml').getroot()
         assert len(list(root)) == 1
@@ -35,7 +35,7 @@ def test_single_test_suite(datafiles, simulator):
 @all_files_in_dir('junit-xml/multiple-test-suites')
 @all_available_simulators()
 def test_multiple_test_suites(datafiles, simulator):
-    with datafiles.as_cwd():
+    with working_directory(datafiles):
         subprocess.check_call(['runSVUnit', '-s', simulator])
         root = ET.parse('tests.xml').getroot()
         assert len(list(root)) == 3
@@ -48,7 +48,7 @@ def test_multiple_test_suites(datafiles, simulator):
 @all_files_in_dir('junit-xml/single-passing-test')
 @all_available_simulators()
 def test_single_passing_test(datafiles, simulator):
-    with datafiles.as_cwd():
+    with working_directory(datafiles):
         subprocess.check_call(['runSVUnit', '-s', simulator])
         root = ET.parse('tests.xml').getroot()
         test_suite = root[0]
@@ -65,7 +65,7 @@ def test_single_passing_test(datafiles, simulator):
 @all_files_in_dir('junit-xml/multiple-passing-tests')
 @all_available_simulators()
 def test_multiple_passing_tests(datafiles, simulator):
-    with datafiles.as_cwd():
+    with working_directory(datafiles):
         subprocess.check_call(['runSVUnit', '-s', simulator])
         root = ET.parse('tests.xml').getroot()
         test_suite = root[0]
@@ -78,7 +78,7 @@ def test_multiple_passing_tests(datafiles, simulator):
 @all_files_in_dir('junit-xml/multiple-test-modules')
 @all_available_simulators()
 def test_multiple_test_modules(datafiles, simulator):
-    with datafiles.as_cwd():
+    with working_directory(datafiles):
         subprocess.check_call(['runSVUnit', '-s', simulator])
         root = ET.parse('tests.xml').getroot()
         test_suite = root[0]
@@ -91,7 +91,7 @@ def test_multiple_test_modules(datafiles, simulator):
 @all_files_in_dir('junit-xml/single-failing-test')
 @all_available_simulators()
 def test_single_failing_test(datafiles, simulator):
-    with datafiles.as_cwd():
+    with working_directory(datafiles):
         subprocess.check_call(['runSVUnit', '-s', simulator])
         root = ET.parse('tests.xml').getroot()
         test_suite = root[0]
@@ -106,7 +106,7 @@ def test_single_failing_test(datafiles, simulator):
 @all_files_in_dir('junit-xml/multiple-failing-tests')
 @all_available_simulators()
 def test_multiple_failing_tests(datafiles, simulator):
-    with datafiles.as_cwd():
+    with working_directory(datafiles):
         subprocess.check_call(['runSVUnit', '-s', simulator])
         root = ET.parse('tests.xml').getroot()
         test_suite = root[0]
@@ -120,7 +120,7 @@ def test_multiple_failing_tests(datafiles, simulator):
 @all_files_in_dir('junit-xml/xml-special-chars-in-message')
 @all_available_simulators()
 def test_xml_special_chars_in_message(datafiles, simulator):
-    with datafiles.as_cwd():
+    with working_directory(datafiles):
         subprocess.check_call(['runSVUnit', '-s', simulator])
         root = ET.parse('tests.xml').getroot()
         test_suite = root[0]
