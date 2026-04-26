@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+# Run the SVUnit pytest regression suite via uv.
+# Forwards extra args to pytest, e.g. `testSVUnit -k list` or `testSVUnit -n auto`.
+set -e
+: "${SVUNIT_INSTALL:?SVUNIT_INSTALL is not set; source Setup.{bsh,csh,zsh} first}"
+cd "$SVUNIT_INSTALL/test"
+exec uv run pytest "$@"
