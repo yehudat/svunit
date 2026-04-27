@@ -162,26 +162,26 @@ def test_frmwrk_11(datafiles):
 @all_files_in_dir('frmwrk_12')
 def test_frmwrk_12(datafiles):
     with working_directory(datafiles):
-        for file in datafiles.listdir():
+        for file in datafiles.iterdir():
             subprocess.check_call(['create_unit_test.pl', file])
-            assert pathlib.Path(file.purebasename + '_unit_test.sv').is_file()
+            assert pathlib.Path(file.stem + '_unit_test.sv').is_file()
 
 
 @all_files_in_dir('frmwrk_13')
 def test_frmwrk_13(datafiles):
     with working_directory(datafiles):
-        for file in (datafiles / 'second_dir').listdir():
-            if not file.check(file=1):
+        for file in (datafiles / 'second_dir').iterdir():
+            if not file.is_file():
                 continue
             subprocess.check_call(['create_unit_test.pl', file])
-            assert pathlib.Path(file.purebasename + '_unit_test.sv').is_file()
+            assert pathlib.Path(file.stem + '_unit_test.sv').is_file()
 
     with working_directory(datafiles / 'second_dir'):
-        for file in datafiles.listdir():
-            if not file.check(file=1):
+        for file in datafiles.iterdir():
+            if not file.is_file():
                 continue
             subprocess.check_call(['create_unit_test.pl', file])
-            assert pathlib.Path(file.purebasename + '_unit_test.sv').is_file()
+            assert pathlib.Path(file.stem + '_unit_test.sv').is_file()
 
 
 @all_files_in_dir('frmwrk_14')
@@ -204,18 +204,18 @@ def test_frmwrk_14(datafiles, simulator):
 def test_frmwrk_15(datafiles):
     with working_directory(datafiles):
         os.mkdir('third_dir')
-        for file in (datafiles / 'second_dir').listdir():
-            if not file.check(file=1):
+        for file in (datafiles / 'second_dir').iterdir():
+            if not file.is_file():
                 continue
-            destfile = os.path.join('third_dir', file.purebasename + '_unit_test.sv')
+            destfile = os.path.join('third_dir', file.stem + '_unit_test.sv')
             subprocess.check_call(['create_unit_test.pl', file, '-out', destfile])
             assert pathlib.Path(destfile).is_file()
 
     with working_directory(datafiles / 'second_dir'):
-        for file in (datafiles / 'second_dir').listdir():
-            if not file.check(file=1):
+        for file in (datafiles / 'second_dir').iterdir():
+            if not file.is_file():
                 continue
-            destfile = os.path.join('..', file.purebasename + '_unit_test.sv')
+            destfile = os.path.join('..', file.stem + '_unit_test.sv')
             subprocess.check_call(['create_unit_test.pl', file, '-out', destfile])
             assert pathlib.Path(destfile).is_file()
 
