@@ -1,12 +1,17 @@
 name: CI
 
-on: [push, pull_request]
+on:
+  pull_request:
+  merge_group:
+  push:
+    branches: [master]
 
 env:
   VERILATOR_VERSION: v5.024
 
 jobs:
-  test:
+  build:
+    name: build
     runs-on: ubuntu-22.04
     permissions:
       contents: read
@@ -61,7 +66,72 @@ jobs:
         with:
           enable-cache: true
 
-      - name: Run tests
+      - name: Run tests (L0 fast tier)
+        run: |
+          source Setup.bsh
+          cd test
+          uv sync --frozen
+          uv run pytest -n auto -m "not slow"
+
+  merge-queue:
+    name: merge-queue
+    if: github.event_name == 'merge_group'
+    needs: build
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: read
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+
+      - name: Install g++ 10
+        run: sudo apt-get install -y g++-10
+            && echo "CXX=g++-10" >> "$GITHUB_ENV"
+
+      - name: Install Verilator dependencies
+        run: |
+            sudo apt-get install -y \
+                git help2man perl make \
+                libfl2 \
+                libfl-dev \
+                zlib1g zlib1g-dev \
+                git autoconf flex bison
+
+      - name: Cache Verilator
+        id: cache-verilator
+        uses: actions/cache@v4
+        with:
+          path: /opt/verilator
+          key: verilator-${{ env.VERILATOR_VERSION }}-${{ runner.os }}
+
+      - name: Clone Verilator
+        if: steps.cache-verilator.outputs.cache-hit != 'true'
+        run: git clone https://github.com/verilator/verilator $HOME/verilator
+            && cd $HOME/verilator
+            && git checkout $VERILATOR_VERSION
+
+      - name: Build Verilator
+        if: steps.cache-verilator.outputs.cache-hit != 'true'
+        run: cd $HOME/verilator
+            && autoconf
+            && ./configure --prefix /opt/verilator
+            && make -j `nproc`
+
+      - name: Install Verilator
+        if: steps.cache-verilator.outputs.cache-hit != 'true'
+        run: cd $HOME/verilator
+            && sudo make install
+
+      - name: Add Verilator to $PATH
+        run: echo "/opt/verilator/bin" >> $GITHUB_PATH
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
+
+      - name: Run tests (L1 full tier incl. slow)
         run: |
           source Setup.bsh
           cd test
